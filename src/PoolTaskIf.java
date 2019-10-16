@@ -17,8 +17,11 @@ public abstract class PoolTaskIf{
 	}
 	public abstract void run();
 	
-	protected void mSleep(final short ms) {
-		Thread.sleep(ms);
+	protected void mSleep(final int ms) {
+		try {
+			Thread.sleep(ms);
+		}
+		catch (InterruptedException e) {}
 	}
 }
 

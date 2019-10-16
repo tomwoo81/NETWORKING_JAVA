@@ -21,16 +21,6 @@ public class Networking implements Constants, Statuses{
 			System.exit(STATUS_ERR);
 		}
 		
-//		/* read the standard output */
-//		BufferedReader stdout1 = new BufferedReader(new InputStreamReader(tcpServerProcess.getInputStream()));
-//		String line1;
-//		try {
-//			while (null != (line1 = stdout1.readLine())) {
-//			    System.out.println(line1);
-//			}
-//		}
-//		catch (IOException e) {}
-		
 		/* Main process */
 		ProcessBuilder tcpClientProcessBuilder[] = new ProcessBuilder[NUM_TCP_CLIENTS];
 		Process tcpClientProcess[] = new Process[NUM_TCP_CLIENTS];
@@ -56,15 +46,6 @@ public class Networking implements Constants, Statuses{
 				System.out.println("[Info] " + "Main process - exit");
 				System.exit(STATUS_ERR);
 			}
-			
-//			/* read the standard output */
-//			stdout2[i] = new BufferedReader(new InputStreamReader(tcpClientProcess[i].getInputStream()));
-//			try {
-//				while (null != (line2[i] = stdout2[i].readLine())) {
-//				    System.out.println(line2[i]);
-//				}
-//			}
-//			catch (IOException e) {}
 		}
 		
 		for (int i = 0; i < NUM_TCP_CLIENTS; i++) {
@@ -89,27 +70,27 @@ public class Networking implements Constants, Statuses{
 		catch (IOException e) {}
 		
 		/* Wait for shutdown of all child processes. */
-		try {
-			tcpServerProcess.waitFor();
-		}
-		catch (InterruptedException e) {}
 		for (int i = 0; i < NUM_TCP_CLIENTS; i++) {
 			try {
 				tcpClientProcess[i].waitFor();
 			}
 			catch (InterruptedException e) {}
 		}
-		
 		try {
-			stdout1.close();
+			tcpServerProcess.waitFor();
 		}
-		catch (IOException e) {}
+		catch (InterruptedException e) {}
+		
 		for (int i = 0; i < NUM_TCP_CLIENTS; i++) {
 			try {
 				stdout2[i].close();
 			}
 			catch (IOException e) {}
 		}
+		try {
+			stdout1.close();
+		}
+		catch (IOException e) {}
 
 		System.out.println("[Info] " + "Main process - exit");
 		System.exit(STATUS_OK);

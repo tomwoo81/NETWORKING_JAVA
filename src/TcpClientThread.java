@@ -1,5 +1,5 @@
-import java.io.*;
 import java.net.*;
+import java.io.*;
 import java.lang.Thread;
 
 public class TcpClientThread extends Thread implements Constants{
@@ -8,6 +8,7 @@ public class TcpClientThread extends Thread implements Constants{
 	private short mLocalPortNumber;
 	private String mRemoteIpAddrStr;
 	private short mRemotePortNumber;
+	private final int TCP_CLIENT_THREAD_BUFFER_LENGTH = (1 * 1024 * 1024); // 1 MB
 	
 	public TcpClientThread(final int ipVer, final String localIpAddrStr, final short localPortNumber,
 			final String remoteIpAddrStr, final short remotePortNumber) {
@@ -29,11 +30,12 @@ public class TcpClientThread extends Thread implements Constants{
 		DataInputStream dis;
 		DataOutputStream dos;
 		String rxMsg, txMsg;
+		byte[] readBuffer = new byte[TCP_CLIENT_THREAD_BUFFER_LENGTH];
 
 		/* Open a TCP Client Socket with addr and port. */
 		try {
 			socket = new Socket(InetAddress.getByName(mRemoteIpAddrStr), mRemotePortNumber, 
-					InetAddress.getByName(mLocalIpAddrStr), mLocalPortNumber);
+					InetAddress.getByName(mLocalIpAddrStr), mLocalPortNumber); // blocking I/O
 		}
 		catch (IOException e) {
 //			ErrLog(<<"Fail to open and configure a TCP Client Socket with addr and port!");
@@ -55,23 +57,19 @@ public class TcpClientThread extends Thread implements Constants{
 		for (int i = 0; i < TCP_CLIENT_TX_MSG_NUM; i++) {
 			try {
 				/* Send a message. */
-//				os = socket.getOutputStream();
-//				dos = new DataOutputStream(os);
 				txMsg = String.format(TCP_CLIENT_TX_MSG, i, mLocalPortNumber);
-				dos.writeUTF(txMsg);
+				dos.write(txMsg.getBytes());
 			}
 			catch (IOException e) {
 //				WarningLog(<<"Fail to send a message to the TCP server!");
 				System.out.println("[Warn] " + "Fail to send a message to the TCP server!");
 				continue;
 			}
-
 			System.out.println("[Info] " + "TCP Client (port: " + mLocalPortNumber + ") Tx (" + i + ") [" + txMsg.length() + " bytes]");
 
 			try {
-//				is = socket.getInputStream();
-//				dis = new DataInputStream(is);
-				rxMsg = new String(dis.readUTF());
+				int ret = dis.read(readBuffer);
+				rxMsg = new String(readBuffer, 0, ret, "utf-8");
 			}
 			catch (IOException e) {
 				/* No received message. */
@@ -99,7 +97,6 @@ public class TcpClientThread extends Thread implements Constants{
 			socket.close();
 		}
 		catch (IOException e) {}
-
 //		InfoLog(<<"Close the TCP Client Socket.");
 		System.out.println("[Info] " + "Close the TCP Client Socket (port: " + mLocalPortNumber + ").");
 

@@ -25,7 +25,7 @@ public class TcpServerProcess implements Constants, Statuses{
 		catch (InterruptedException e) {}
 
 		try {
-			tcpServerListenThread.stop();
+			tcpServerListenThread.shutdown();
 			tcpServerListenThread.join();
 		}
 		catch (InterruptedException e) {}

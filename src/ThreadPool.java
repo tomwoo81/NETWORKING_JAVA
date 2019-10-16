@@ -25,12 +25,14 @@ public class ThreadPool implements Statuses{
 			
 			while (true) {
 				if (mThreadPool.getTask(this)) {
-//					InfoLog(<<"Thread "<<tid<<" will be busy.");
-					System.out.println("[Info] " + "Thread " + tid + " will be busy.");
-					mTask.run();
-					mTask = null;
-//					InfoLog(<<"Thread "<<tid<<" will be idle.");
-					System.out.println("[Info] " + "Thread " + tid + " will be idle.");
+					if (null != mTask) {
+//						InfoLog(<<"Thread "<<tid<<" will be busy.");
+						System.out.println("[Info] " + "Thread " + tid + " will be busy.");
+						mTask.run();
+						mTask = null; // Delete a task.
+//						InfoLog(<<"Thread "<<tid<<" will be idle.");
+						System.out.println("[Info] " + "Thread " + tid + " will be idle.");
+					}
 				}
 				else {
 //					InfoLog(<<"Thread "<<tid<<" will exit.");
@@ -39,16 +41,21 @@ public class ThreadPool implements Statuses{
 				}
 			}
 			
+	        /* Remove the binding between the variable threadPool and the object of ThreadPool. */
+			mThreadPool = null;
+			
 			System.out.println("[Info] " + "PoolThread - exit");
 		}
 	}
 	
 	private Vector<PoolThread> mThreadVec;
 	private Vector<PoolTaskIf> mTaskVec;
+	private boolean mShutdown;
 	
 	public ThreadPool(final int numThreads) {
 		mThreadVec = new Vector<PoolThread>();
 		mTaskVec = new Vector<PoolTaskIf>();
+		mShutdown = false;
 		
 		if (STATUS_ERR == createAll(numThreads)) {
 			return;
@@ -59,9 +66,7 @@ public class ThreadPool implements Statuses{
 	}
 	protected void finalize() throws Throwable{
 		shutdownAll();
-		
-		mTaskVec = null;
-		mThreadVec = null;
+		joinAll();
 	}
 	
 	public synchronized void addTask(final PoolTaskIf task) {
@@ -70,33 +75,51 @@ public class ThreadPool implements Statuses{
 		notify();
 	}
 	public synchronized Boolean getTask(final PoolThread thread) {
-		while ((0 == mTaskVec.size())) {
+		while ((0 == mTaskVec.size()) && (!mShutdown)) {
 			try {
 				wait();
 			}
 			catch (InterruptedException e) {}
 		}
-
+		
+		if (mShutdown) {
+        	return false;
+        }
+		
 		Iterator<PoolTaskIf> iter = mTaskVec.iterator();
 		if (iter.hasNext()) {
 			thread.mTask = iter.next();
 			mTaskVec.removeElement(thread.mTask);
 		}
-
+		else {
+			thread.mTask = null;
+		}
+		
 		return true;
 	}
+	public synchronized boolean isShutdown() {
+		return mShutdown;
+	}
 	public synchronized void shutdownAll() {
-		for (Object o: mThreadVec) {
-			o.stop();
-			o.join();
-			o = null;
+        if (!mShutdown) {
+//        	InfoLog(<<"To shutdown all threads in this Thread Pool.");
+        	System.out.println("[Info] " + "To shutdown all threads in this Thread Pool.");
+        	
+        	mShutdown = true;
+        	notifyAll();
+        }
+    }
+	public void joinAll() {
+		for (PoolThread t: mThreadVec) {
+			try {
+				t.join();
+			}
+			catch (InterruptedException e) {}
+			
+			t = null;
 		}
+		
 		mThreadVec.clear();
-
-		for (Object o: mTaskVec) {
-			o = null;
-		}
-		mTaskVec.clear();
 	}
 	public synchronized int getPendingTaskNum() {
 		return mTaskVec.size();

@@ -4,7 +4,7 @@ public interface Constants{
 	int IP_ADDR_VER_6 = 16; /* IPv6 (16-octet address) */
 
 	String TCP_SERVER_IP_ADDR = "127.0.0.1"; //Loopback Address
-	short TCP_SERVER_PORT_NUMBER = 80;
+	short TCP_SERVER_PORT_NUMBER = 8888;
 	int TCP_CONNECTIONS_MAX_NUM = 5;
 	int THREAD_POOL_NUM_THREADS = 3;
 	String TCP_SERVER_TX_MSG = "Response from TCP Server to TCP Client";
@@ -17,7 +17,7 @@ public interface Constants{
 	String TCP_CLIENT_TX_MSG = "Request (%d) from TCP Client (port: %d) to TCP Server";
 	int NUM_TCP_CLIENTS = 5;
 
-	String DIRECTORY = "D:\\workspaces\\learning\\NETWORKING_JAVA\\bin";
+	String DIRECTORY = "/home/tarena/workspaces/learning/NETWORKING_JAVA/bin";
 	//String SOFTWARE_VERSION = "V10.01.00.00";
 }
 
