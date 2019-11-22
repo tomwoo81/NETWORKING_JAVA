@@ -32,21 +32,21 @@ public class TcpServerListenThread extends Thread implements Constants{
 			return;
 		}
 		
-		ServerSocketChannel listenTcpServerSocket;
+		ServerSocketChannel listenTcpServerSocketChannel;
 		
 		try {
 			/* Open a TCP Server Socket for listening. */
-			listenTcpServerSocket = ServerSocketChannel.open();
+			listenTcpServerSocketChannel = ServerSocketChannel.open();
 			
 			/* Non-blocking I/O */
-			listenTcpServerSocket.configureBlocking(false);
+			listenTcpServerSocketChannel.configureBlocking(false);
 			
 			/* Configure a TCP Server Socket for listening with addr and port. */
-			listenTcpServerSocket.socket().bind(new InetSocketAddress(mLocalIpAddrStr, mLocalPortNumber));
+			listenTcpServerSocketChannel.socket().bind(new InetSocketAddress(mLocalIpAddrStr, mLocalPortNumber));
 		}
 		catch (IOException e) {
-//			ErrLog(<<"Fail to open a TCP Server Socket for listening with addr and port!");
-			System.out.println("[Err] " + "Fail to open a TCP Server Socket for listening with addr and port!");
+//			ErrLog(<<"Fail to open a TCP Server Socket Channel for listening with addr and port!");
+			System.out.println("[Err] " + "Fail to open a TCP Server Socket Channel for listening with addr and port!");
 			return;
 		}
 		
@@ -57,7 +57,7 @@ public class TcpServerListenThread extends Thread implements Constants{
 			selector = Selector.open();
 			
 			/* Register the ACCEPT event to the selector. */
-			listenTcpServerSocket.register(selector, SelectionKey.OP_ACCEPT);
+			listenTcpServerSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
 		}
 		catch (IOException e) {
 //			ErrLog(<<"Fail to open a selector or register the ACCEPT event to the selector!");
@@ -82,10 +82,10 @@ public class TcpServerListenThread extends Thread implements Constants{
 				/* New TCP connection(s). */
 				for (SelectionKey sk: selector.selectedKeys()) {
 					if (sk.isAcceptable()) {
-						SocketChannel connTcpServerSocket;
+						SocketChannel connTcpServerSocketChannel;
 						
 						try {
-							connTcpServerSocket = ((ServerSocketChannel)sk.channel()).accept();
+							connTcpServerSocketChannel = ((ServerSocketChannel)sk.channel()).accept();
 						}
 						catch (IOException e) {
 							continue;
@@ -94,13 +94,13 @@ public class TcpServerListenThread extends Thread implements Constants{
 						TcpServerConnTask task;
 						try {
 							/* Create a TCP Server Connection Task. */
-							task = new TcpServerConnTask(connTcpServerSocket);
+							task = new TcpServerConnTask(connTcpServerSocketChannel);
 						}
 						catch (Exception e) {
 //							ErrLog(<<"Fail to create a TCP Server Connection Task!");
 							System.out.println("[Err] " + e.toString() + " Fail to create a TCP Server Connection Task!");
 							try {
-								connTcpServerSocket.close();
+								connTcpServerSocketChannel.close();
 							}
 							catch (IOException e2) {
 								continue;
@@ -122,13 +122,13 @@ public class TcpServerListenThread extends Thread implements Constants{
 			}
 		}
 		
-        /* Close the TCP Server Socket for listening. */
+        /* Close the TCP Server Socket Channel for listening. */
 		try {
-			listenTcpServerSocket.close();
+			listenTcpServerSocketChannel.close();
 		}
 		catch (IOException e) {}
-//		InfoLog(<<"Close the TCP Server Socket for listening.");
-		System.out.println("[Info] " + "Close the TCP Server Socket for listening.");
+//		InfoLog(<<"Close the TCP Server Socket Channel for listening.");
+		System.out.println("[Info] " + "Close the TCP Server Socket Channel for listening.");
 		
         /* Shutdown all threads in the Thread Pool. */
         threadPool.shutdownAll();

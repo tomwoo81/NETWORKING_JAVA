@@ -4,19 +4,19 @@ import java.nio.channels.*;
 import java.nio.charset.Charset;
 
 public class TcpServerConnTask extends PoolTaskIf implements Constants{
-	private SocketChannel mSocket;
+	private SocketChannel mChannel;
 	private final int TCP_SERVER_TASK_BUFFER_LENGTH = (512 * 1024); // 512 KB
 	
-	public TcpServerConnTask(final SocketChannel socket) {
-		mSocket = socket;
+	public TcpServerConnTask(final SocketChannel channel) {
+		mChannel = channel;
 	}
 	protected void finalize() throws Throwable{
-        if (null != mSocket) {
-        	/* Close the TCP Server Socket for connection. */
-        	mSocket.close();
-//        	InfoLog(<<"Close the TCP Server Socket for connection.");
-        	System.out.println("[Info] " + "Close the TCP Server Socket for connection.");
-        	mSocket = null;
+        if (null != mChannel) {
+        	/* Close the TCP Server Socket Channel for connection. */
+        	mChannel.close();
+//        	InfoLog(<<"Close the TCP Server Socket Channel for connection.");
+        	System.out.println("[Info] " + "Close the TCP Server Socket Channel for connection.");
+        	mChannel = null;
         }
 	}
 	
@@ -26,7 +26,7 @@ public class TcpServerConnTask extends PoolTaskIf implements Constants{
 		
 		try {
 			/* Non-blocking I/O */
-			mSocket.configureBlocking(false);
+			mChannel.configureBlocking(false);
 		}
 		catch (IOException e) {
 //			ErrLog(<<"Fail to configure a non-blocking I/O!");
@@ -40,8 +40,8 @@ public class TcpServerConnTask extends PoolTaskIf implements Constants{
 			/* Open a selector. */
 			selector = Selector.open();
 			
-			/* Register the ACCEPT event to the selector. */
-			mSocket.register(selector, SelectionKey.OP_READ);
+			/* Register the READ event to the selector. */
+			mChannel.register(selector, SelectionKey.OP_READ);
 		}
 		catch (IOException e) {
 //			ErrLog(<<"Fail to open a selector or register the READ event to the selector!");

@@ -1,7 +1,7 @@
 import java.io.*;
 
 public class Networking implements Constants, Statuses{
-	public static void main(String args[]) {
+	public static void tcpMain() {
 		System.out.println("[Info] " + "Main process - enter");
 
 		ProcessBuilder tcpServerProcessBuilder;
@@ -94,6 +94,122 @@ public class Networking implements Constants, Statuses{
 
 		System.out.println("[Info] " + "Main process - exit");
 		System.exit(STATUS_OK);
+	}
+	
+	public static void udpMain() {
+		System.out.println("[Info] " + "Main process - enter");
+
+		ProcessBuilder udpEndpointAProcessBuilder;
+		Process udpEndpointAProcess = null;
+		
+		try {
+			udpEndpointAProcessBuilder = new ProcessBuilder("java", "UdpEndpointAProcess");
+			udpEndpointAProcessBuilder.directory(new File(DIRECTORY));
+			/* merge the error output with the standard output */
+			udpEndpointAProcessBuilder.redirectErrorStream(true);
+			udpEndpointAProcess = udpEndpointAProcessBuilder.start();
+		}
+		catch (Exception e) {
+			/* Main process */
+			System.out.println("[Err] " + "Fail to start a child process!");
+			System.out.println("[Info] " + "Main process - exit");
+			System.exit(STATUS_ERR);
+		}
+		
+		/* Main process */
+		ProcessBuilder udpEndpointBProcessBuilder[] = new ProcessBuilder[NUM_UDP_ENDPOINTS_B];
+		Process udpEndpointBProcess[] = new Process[NUM_UDP_ENDPOINTS_B];
+		BufferedReader stdout2[] = new BufferedReader[NUM_UDP_ENDPOINTS_B];
+		String line2[] = new String[NUM_UDP_ENDPOINTS_B];
+		
+		for (int i = 0; i < NUM_UDP_ENDPOINTS_B; i++) {
+			try {
+				Thread.sleep(UDP_ENDPOINT_B_TX_MSG_INTERVAL);
+			}
+			catch (InterruptedException e) {}
+			
+			try {
+				udpEndpointBProcessBuilder[i] = new ProcessBuilder("java", "UdpEndpointBProcess", String.valueOf(i));
+				udpEndpointBProcessBuilder[i].directory(new File(DIRECTORY));
+				/* merge the error output with the standard output */
+				udpEndpointBProcessBuilder[i].redirectErrorStream(true);
+				udpEndpointBProcess[i] = udpEndpointBProcessBuilder[i].start();
+			}
+			catch (Exception e) {
+				/* Main process */
+				System.out.println("[Err] " + "Fail to start a child process!");
+				System.out.println("[Info] " + "Main process - exit");
+				System.exit(STATUS_ERR);
+			}
+		}
+		
+		for (int i = 0; i < NUM_UDP_ENDPOINTS_B; i++) {
+			/* read the standard output */
+			stdout2[i] = new BufferedReader(new InputStreamReader(udpEndpointBProcess[i].getInputStream()));
+			try {
+				while (null != (line2[i] = stdout2[i].readLine())) {
+				    System.out.println(line2[i]);
+				}
+			}
+			catch (IOException e) {}
+		}
+		
+		/* read the standard output */
+		BufferedReader stdout1 = new BufferedReader(new InputStreamReader(udpEndpointAProcess.getInputStream()));
+		String line1;
+		try {
+			while (null != (line1 = stdout1.readLine())) {
+			    System.out.println(line1);
+			}
+		}
+		catch (IOException e) {}
+		
+		/* Wait for shutdown of all child processes. */
+		for (int i = 0; i < NUM_UDP_ENDPOINTS_B; i++) {
+			try {
+				udpEndpointBProcess[i].waitFor();
+			}
+			catch (InterruptedException e) {}
+		}
+		try {
+			udpEndpointAProcess.waitFor();
+		}
+		catch (InterruptedException e) {}
+		
+		for (int i = 0; i < NUM_UDP_ENDPOINTS_B; i++) {
+			try {
+				stdout2[i].close();
+			}
+			catch (IOException e) {}
+		}
+		try {
+			stdout1.close();
+		}
+		catch (IOException e) {}
+
+		System.out.println("[Info] " + "Main process - exit");
+		System.exit(STATUS_OK);
+	}
+	
+	public static void main(String args[]) {
+		int argc = args.length;
+		
+		String socketType = null;
+		
+		if (argc >= 1) {
+			socketType = args[0];
+		}
+		
+	    if (socketType.equalsIgnoreCase("tcp")) {
+	    	tcpMain();
+	    }
+	    else if (socketType.equalsIgnoreCase("udp")) {
+	    	udpMain();
+	    }
+	    else {
+	    	System.out.println("[Info] " + "The type (" + socketType + ") is invalid!");
+	    	System.exit(STATUS_ERR);
+	    }
 	}
 }
 
