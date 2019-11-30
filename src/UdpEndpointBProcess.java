@@ -4,7 +4,7 @@ public class UdpEndpointBProcess implements Constants, Statuses{
 		int i = Integer.valueOf(args[0]);
 
 		/* Child process for UDP Endpoint B */
-		System.out.println("[Info] " + "Child process for UDP Endpoint B " + i + " - enter");
+		System.out.println("[Info] " + "Child process for UDP endpoint B " + i + " - enter");
 
 		UdpEndpointBThread udpEndpointBThread = null;
 
@@ -17,7 +17,7 @@ public class UdpEndpointBProcess implements Constants, Statuses{
 		{
 //			ErrLog(<<"Fail to create an instance of UdpEndpointBThread!");
 			System.out.println("[Err] " + "Fail to create an instance of UdpEndpointBThread!");
-			System.out.println("[Info] " + "Child process for Udp Endpoint B " + i + " - exit");
+			System.out.println("[Info] " + "Child process for UDP endpoint B " + i + " - exit");
 			System.exit(STATUS_ERR);
 		}
 
@@ -30,7 +30,7 @@ public class UdpEndpointBProcess implements Constants, Statuses{
 
 		udpEndpointBThread = null;
 
-		System.out.println("[Info] " + "Child process for Udp Endpoint B " + i + " - exit");
+		System.out.println("[Info] " + "Child process for UDP endpoint B " + i + " - exit");
 		System.exit(STATUS_OK);
 	}
 }

@@ -2,7 +2,7 @@
 public class UdpEndpointAProcess implements Constants, Statuses{
 	public static void main(String args[]) {
 		/* Child process for UDP Endpoint A */
-		System.out.println("[Info] " + "Child process for UDP Endpoint A - enter");
+		System.out.println("[Info] " + "Child process for UDP endpoint A - enter");
 
 		UdpEndpointAThread udpEndpointAThread = null;
 
@@ -13,7 +13,7 @@ public class UdpEndpointAProcess implements Constants, Statuses{
 		catch (Exception e) {
 //			ErrLog(<<"Fail to create an instance of UdpEndpointAThread!");
 			System.out.println("[Err] " + "Fail to create an instance of UdpEndpointAThread!");
-			System.out.println("[Info] " + "Child process for UDP Endpoint A - exit");
+			System.out.println("[Info] " + "Child process for UDP endpoint A - exit");
 			System.exit(STATUS_ERR);
 		}
 
@@ -32,7 +32,7 @@ public class UdpEndpointAProcess implements Constants, Statuses{
 
 		udpEndpointAThread = null;
 
-		System.out.println("[Info] " + "Child process for UDP Endpoint A - exit");
+		System.out.println("[Info] " + "Child process for UDP endpoint A - exit");
 		System.exit(STATUS_OK);
 	}
 }

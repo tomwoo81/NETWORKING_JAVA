@@ -199,6 +199,9 @@ public class Networking implements Constants, Statuses{
 		if (argc >= 1) {
 			socketType = args[0];
 		}
+		else {
+			socketType = "tcp";
+		}
 		
 	    if (socketType.equalsIgnoreCase("tcp")) {
 	    	tcpMain();
@@ -207,7 +210,7 @@ public class Networking implements Constants, Statuses{
 	    	udpMain();
 	    }
 	    else {
-	    	System.out.println("[Info] " + "The type (" + socketType + ") is invalid!");
+	    	System.out.println("[Err] " + "The type (" + socketType + ") is invalid!");
 	    	System.exit(STATUS_ERR);
 	    }
 	}
