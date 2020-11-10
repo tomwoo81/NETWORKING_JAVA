@@ -41,6 +41,9 @@ public class TcpServerListenThread extends Thread implements Constants{
 			/* Non-blocking I/O */
 			listenTcpServerSocketChannel.configureBlocking(false);
 			
+			/* Make address reusable. */
+			listenTcpServerSocketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+			
 			/* Configure a TCP Server Socket for listening with addr and port. */
 			listenTcpServerSocketChannel.socket().bind(new InetSocketAddress(mLocalIpAddrStr, mLocalPortNumber));
 		}

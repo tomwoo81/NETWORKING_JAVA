@@ -34,6 +34,9 @@ public class UdpEndpointAThread extends Thread implements Constants{
 			/* Non-blocking I/O */
 			channel.configureBlocking(false);
 			
+			/* Make address reusable. */
+			channel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+			
 			/* Configure a UDP Endpoint Socket Channel with addr and port. */
 			channel.socket().bind(new InetSocketAddress(mLocalIpAddrStr, mLocalPortNumber));
 		}
